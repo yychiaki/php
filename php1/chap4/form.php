@@ -44,7 +44,7 @@ var_dump($_POST);
 		<input type="checkbox" name="hobby[]" value="4">cycling
 		<input type="checkbox" name="hobby[]" value="5">investment
 		<br>
-		<input type="submit" value="send">
+		<input type="submit" name="submit" value="send">
 
 	</form>
 </body>

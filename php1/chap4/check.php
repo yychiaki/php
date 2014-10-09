@@ -2,14 +2,24 @@
 
 // var_dump($_POST);
 
-if(!isset($_POST['submit'])){
-	//$url = $_SERVER['SCRIPT_NAME'];
-	header("location:http://localhost/php/php1/chap4/form.php");
+require_once('config.php');
+
+function h($str){
+	return htmlspecialchars($str, ENT_QUOTES, "UTF-8");
 }
 
-$name = $_POST['name'];
-$password = $_POST['password'];
-$note = nl2br($_POST['note']);
+if(!isset($_POST['submit'])){
+	// $host = $_SERVER['SERVER_NAME'];
+	// $url = $_SERVER['SCRIPT_NAME'];
+	// $url = str_replace("check.php","form.php",$url);
+	// header("location:http://{$host}{$url}");
+
+	header("location:". FORM_URL);
+}
+
+$name = h($_POST['name']);
+$password = h($_POST['password']);
+$note = h(nl2br($_POST['note']));
 
 $seibetu = array(1 =>"man", 2=>"woman", 9=>"no reply");
 $sex = "unknown";
