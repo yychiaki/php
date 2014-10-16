@@ -43,7 +43,7 @@ function bbs_write($data){
 	$handle = fopen($bbs_file,"a");
 
 	// コメントの改行コードを統一する
-	$data['comment'] = str_repeat(array("/r/n","/n","/r"), PHP_EOL, $daga['comment']);
+	$data['comment'] = str_replace(array("/r/n","/n","/r"), PHP_EOL, $data['comment']);
 
 	// 書き込みたい情報を配列にまとめる
 	$csv[] = $data["name"];
