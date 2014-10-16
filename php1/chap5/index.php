@@ -15,6 +15,9 @@ if(isset($_POST["submit"])){
 		$result = bbs_write($_POST);
 		if(!$result){
 			$errors["result"] = "書き込みに失敗しました";
+		}else{
+			header("Location: http://" . $_SERVER["HTTP_HOST"] . $_SERVER['SCRIPT_NAME']);
+			exit;
 		}
 	}
 }
