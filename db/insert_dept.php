@@ -1,5 +1,9 @@
 <?php
 require_once 'MDB2.php';
+require_once 'check.php';
+require_once 'common.php';
+
+
 
 $user = 'test';
 $pass = '0987';
@@ -37,8 +41,8 @@ if(isset($_POST['submit'])){
 	$defaults = $_POST;
 
 	// フォームに入力された値のチェック
-	//$errors = check();
-	$errors = array();
+	$errors = check();
+	//$errors = array();
 	
 
 	// エラーがなければ追加処理
@@ -50,6 +54,9 @@ if(isset($_POST['submit'])){
 		//departments表に追加
 		$sth = $db->prepare('INSERT INTO departments(deptno, dname, loc) values(?,?,?)');
 		$sth->execute(array($max_deptno+10, $_POST['dname'], $_POST['loc']));
+		//1度書き込んだ後、ブラウザのreloadで、同じデータが書き込まれてしまう問題を修正
+		header("Location: http://" . $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME']);
+		exit;
 	}
 
 
@@ -58,6 +65,7 @@ if(isset($_POST['submit'])){
 	$defaults['dname'] = "";
 	$defaults['loc'] = "";
 }
+
 
 ?>
 
@@ -77,34 +85,46 @@ if(isset($_POST['submit'])){
 			padding-right: 1em;
 			padding-left: 1em;
 		}
-
+		ul.error{
+			color:red;
+		}
 	</style>
 </head>
 <body>
 	<form action="<?php echo $_SERVER['SCRIPT_NAME'] ;?>" method='post'>
-		部門名：<input type="text" name="dname" value="" />
-		場所：<input type="text" name="loc" value="" />
+		部門名：<input type="text" name="dname" value="" size="14" />
+		場所：<input type="text" name="loc" value="" size="10" />
 		<input type="submit" name="submit" value="追加" />
 	</form>
-	<hr />
 
-	<table>
-		<tr>
-			<th>部門番号</th>
-			<th>部門名</th>
-			<th>場所</th>
-		</tr>
+	<?php if(isset($errors)) : ?>
+	<ul class="error">
+		<?php 
+		foreach($errors as $error){
+			?>
+			<li><?php print $error; ?></li>
+			<?php }?>
+		</ul>
+		<?php endif; ?>
+		<hr />
 
-		<?php foreach($rows as $row){?>
-		<tr>
-			<td><?php echo $row['deptno'] ?></td>
-			<td><?php echo $row['dname'] ?></td>
-			<td><?php echo $row['loc'] ?></td>
-		</tr>
-		<?php } ?>
-	</table>
+		<table>
+			<tr>
+				<th>部門番号</th>
+				<th>部門名</th>
+				<th>場所</th>
+			</tr>
+
+			<?php foreach($rows as $row){?>
+			<tr>
+				<td><?php echo h($row['deptno']) ?></td>
+				<td><?php echo h($row['dname']) ?></td>
+				<td><?php echo h($row['loc']) ?></td>
+			</tr>
+			<?php } ?>
+		</table>
 
 
 
-</body>
-</html>
+	</body>
+	</html>
