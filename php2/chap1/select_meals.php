@@ -10,27 +10,36 @@ define('DB_NAME', 'dinner');
 
 $dns = 'mysql://' . USER_NAME . ':' . USER_PASS . '@' . HOST_NAME . '/' . DB_NAME;
 $db = MDB2::connect($dns);
-if(MDB2::isError($db)){die('connection error:' . $db->getMessage());}
+if(MDB2::isError($db)){
+	die('connection error:' . $db->getMessage());
+}
 
 // この後のデータベースエラーに関してはメッセージを出力して抜け出す
 $db->setErrorHandling(PEAR_ERROR_DIE);
 
 
+
 // print '接続成功！';
 
 //許される食事は何かを定義する
-$meals = array('breakfast','lunch','dinner');
+$meals = array('breakfast'=>'朝食','lunch'=>'昼食','dinner'=>'夕食');
 
+
+if(isset($_POST['submit'])){
 //submitされたフォームパラメータの"meal"が、
 //"breakfast", "lunch","dinner"のうち1つであることを確認する
-if(in_array($_GET['meal'],$meals)){
-	$unknown = false;
+	if(array_key_exists($_POST['meal'],$meals)){
+		$unknown = false;
 	// その場合、指定された食事のすべての料理を得る
-	$q = $db->query("SELECT dish, price FROM meals WHERE meal LIKE '" . $_GET['meal'] ."'");
+		$sth = $db->prepare("SELECT dish, price FROM meals WHERE meal LIKE ?");
+		$q = $sth->execute(array($_POST['meal']));
+	}else{
+		$unknown = true;
+	}
 }else{
-	$unknown = true;
+	$unknown = false;
+	$q = $db->query("SELECT dish, price FROM meals");
 }
-
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -39,6 +48,23 @@ if(in_array($_GET['meal'],$meals)){
 	<title>DB接続</title>
 </head>
 <body>
+	<form action="<?php echo $_SERVER['SCRIPT_NAME']; ?>" method="post">
+		<select name="meal">
+			<?php foreach ($meals as $key => $value): ?>
+				<?php if(isset($_POST['submit'])): ?>
+					<option value="<?php echo $key; ?>" <?php echo $key == $_POST['meal'] ?'selected' : '' ?>>
+						<?php echo $value; ?>
+					</option>
+				<?php else : ?>
+					<option value="<?php echo $key; ?>">
+						<?php echo $value; ?>
+					</option>
+				<?php endif; ?>
+			<?php endforeach; ?>
+		</select>
+		<input type="submit" value="検索" name='submit'>
+	</form>
+	<hr>
 	<?php if($unknown == true || $q->numrows() == 0): ?>
 		<p>no dishes available.</p>
 	<?php else: ?>
