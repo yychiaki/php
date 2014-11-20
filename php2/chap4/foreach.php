@@ -1,4 +1,8 @@
 <?php
+$dinner = array('Sweet Corn and Asparagus',
+	'Lemon Chiken',
+	'Braised Bamboo Fungus');
+
 $meal = array('breakfast' => 'Walnut Bun',
 	'lunch' => 'Cashew Nuts and White Mushrooms',
 	'snack' => 'Dried Mulberries',
@@ -9,11 +13,44 @@ $mealjp = array('朝食' => 'トースト',
 	'おやつ' => 'ドーナツ',
 	'夕食' => 'すき焼き');
 
+
+print "Befor Sorting: <br/>\n";
+print '<p>';
+foreach($dinner as $key => $value){
+	print "\$dinner: $key $value <br/>\n";
+}
+print '</p>';
+print '<p>';
+foreach ($mealjp as $key => $value) {
+	print "\$meal: $key $value <br/>\n";
+}
+print '</p>';
+
+
+sort($dinner);
+// sort($meal);
+asort($meal);
+ksort($meal);
+ksort($mealjp);
+
+
+print "After Sorting: <br/>\n";
+print '<p>';
+foreach($dinner as $key => $value){
+	print "\$dinner: $key $value <br/>\n";
+}
+print '</p>';
+print '<p>';
+foreach ($mealjp as $key => $value) {
+	print "\$meal: $key $value <br/>\n";
+}
+print '</p>';
+
 // $arinasi = array_key_exists('breakfast', $meal);
 // $arinasi = in_array('Walnut Bu', $meal);
 // $arinasi = array_key_exists('朝食', $mealjp);
-$arinasi = in_array('すき', $mealjp);
-var_dump($arinasi);
+// $arinasi = in_array('すき', $mealaljp);
+// var_dump($arinasi);
 
 /*
 $row_color = array('red','green');
