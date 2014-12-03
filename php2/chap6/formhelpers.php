@@ -1,6 +1,6 @@
 <?php
 
-//文字列のサニタイジングをお粉て返す
+//文字列のサニタイジングを行って返す
 function h($str){
 	return htmlentities($str, ENT_QUOTES, 'UTF-8');
 }
@@ -16,13 +16,13 @@ function input_submit($element_name, $label) {
 	print h($label) . '"/>';
 }
 //テキストエリアを出力
-function input_textarea($element_name, $value) {
+function input_textarea($element_name, $values) {
 	print '<textarea name="' . $element_name .'">';
 	print h($values[$element_name]) . '</textarea>';
 }
 //ラジオボタンまたはチェックボックスを出力
 function input_radiocheck($type, $element_name, $values, $element_value) {
-	print '<input type="' . $type . 'name="' . $element_name . 'value="' . $element_value . '"';
+	print '<input type="' . $type . '" name="' . $element_name . '" value="' . $element_value . '"';
 	if($element_value == $values[$element_name]) {
 		print 'checked="checked"';
 	}
@@ -50,7 +50,7 @@ function input_select($element_name, $selected, $options, $multiple = false) {
 	//<option>タグを出力
 	foreach ($options as $option => $label) {
 		print '<option value="' . h($option) . '"';
-		if($selected_options[$option]){
+		if(array_key_exists($option, $selected_options)){
 			print 'selected = "selected"';
 		}
 		print '>' . h($label) . '</option>';

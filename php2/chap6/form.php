@@ -17,17 +17,6 @@ $sweets = array('cue' => 'シュークリーム',
 	'cho' => 'チョコレートケーキ');
 
 
-if(isset($_POST['_submit_check']) && $_POST['_submit_check'] == 1){
-	$defaults = $_POST;
-}else{
-	$defaults = array();
-	$defaults['my_name'] = '';
-	$defaults['email'] = '';
-	$defaults['age'] = '';
-	$defaults['order'] = 'cue';
-	$defaults['main_dishes'] = array('katsu');
-
-}
 
 //フォームがサブミットされた時に何かをする
 function process_form(){
@@ -36,110 +25,145 @@ function process_form(){
 
 //フォームを表示
 function show_form($errors = ''){
-	global $defaults, $main_dishes;
+
+	//フォームがサブミットされたら、
+	//サブミットされたパラメータからデフォルト値を取得
+	global $main_dishes, $sweets;
+	if(isset($_POST['_submit_check']) && $_POST['_submit_check'] == 1){
+		$defaults = $_POST;
+		if(!isset($_POST['delivery'])){
+			$defaults['delivery'] = 'no';
+		}
+	}else{
+		$defaults = array();
+		$defaults['my_name'] = '';
+		$defaults['email'] = '';
+		$defaults['age'] = '';
+		$defaults['order'] = 'cue';
+		$defaults['main_dishes'] = array('katsu');
+		$defaults['delivery'] = 'yes';
+		$defaults['size'] = 'medium';	
+		$defaults['comments'] = '';
+	}
 	//なにかエラーが渡されると、それを出力
 	if($errors){
-		print "以下のエラーを修正してください:<ul><li>";
-		print implode('</li><li>', $errors);
-		print '</li></ul>';
+		$error_text = '<tr><td>以下のエラーを修正してください:';
+		$error_text .= '</td><td><ul><li>';
+		$error_text .= implode('</li><li>', $errors);
+		$error_text .= '</li></ul></td></tr>';
+	}else {
+		//エラーがなければ、$error_textはブランクにする
+		$error_text = '';
 	}
 	?>
 
 	<form method="POST" action="<?php echo $_SERVER['SCRIPT_NAME']; ?>">
-		<p>Your name: 
-			<input type="text" name="my_name" value="<?php echo h($defaults['my_name']); ?>">
-		</p>
-		<p>mail address: 
-			<input type="text" name="email" value="<?php echo h($defaults['email']); ?>">
-		</p>
-		<p>age: 
-			<input type="text" name="age" size="2" value="<?php echo h($defaults['age']); ?>">
-		</p>
-		<p>料理を選択してください(複数選択可):</p>
-		<p>
-			<select name="main_dish[]" multiple="multiple">
-				<?php
-				$selected_options = array();
-				foreach ($defaults['main_dish'] as $option) {
-					$selected_options['option'] = true;
-				}
-				//<option>タグを出力
-				foreach ($main_dishes as $option => $label) {
-					print '<option value="' . h($option) . '"';
-					if(array_key_exists($option, $selected_options)){
-						print 'selected = "selected"';
-					}
-					print '>' . h($label) . '</option>';
-					print "\n";
-				} ?>
-			</select>
-		</p>
+		<table>
+			<?php print $error_text; ?>
+			<tr>
+				<td>Your name:</td>
+				<td><?php input_text('my_name', $defaults); ?></td>
 
-		<p>デザートを選択してください: 
-			<select name="order">
-				<?php
-				foreach($GLOBALS['sweets'] as $key => $choice){
-					print '<option value ="' . $key . '"';
-					if($key == $defaults['order']){
-						print 'selected = "selected"';
-					}
-					print ">$choice</option>\n";
-				}
-				?>
-			</select>
-		</p>
-		<input type="submit" value="Say Hello">
-		<input type="hidden" name="_submit_check" value="1">
-	</form>
+			</tr>
+			<tr>
+				<td>mail address</td>:
+				<td><?php input_text('email', $defaults); ?></td>
+			</tr>
+			<tr>
+				<td>age:</td>
+				<td><?php input_text('age', $defaults); ?></td>
+				<tr>
+					<tr>
+						<td>Size:</td>
+						<td>
+							<?php input_radiocheck('radio', 'size', $defaults, 'small'); ?>Small<br/>
+							<?php input_radiocheck('radio', 'size', $defaults, 'medium'); ?>Medium<br/>
+							<?php input_radiocheck('radio', 'size', $defaults, 'large'); ?>Large<br/>
+						</td>
+					</tr>
+					<td>料理を選択してください(複数選択可):</td>
+					<td>
+						<?php input_select('main_dish', $defaults, $main_dishes, true); ?>
+					</td>
+				</tr>
 
-	<?php } 
+				<tr>
+					<td>デザートを選択してください:</td>
+					<td>
+						<?php input_select('order', $defaults, $sweets); ?>
+					</td>
+				</tr>
+				<tr>
+					<td>デリバリーしますか？</td>
+					<td>
+						<?php input_radiocheck('checkbox', 'delivery', $defaults, 'yes'); ?>Yes
+					</td>
+				</tr>
 
-	function validate_form(){
+				<tr>
+					<td>
+						その他要望<br/>
+						デリバリーしてほしい場合は、ここに住所を記入してください:
+					</td>
+					<td><?php input_textarea('comments', $defaults); ?></td>
+				</tr>
+
+				<tr>
+					<td colspan ="2" align = "center"><?php input_submit('save', 'Order'); ?></td>
+				</tr>
+			</table>
+
+			<input type="hidden" name="_submit_check" value="1">
+		</form>
+
+		<?php } 
+
+		function validate_form(){
 		//エラーメッセージを格納する配列を初期化
-		$errors = array();
+			$errors = array();
 		//名前が短すぎる場合のチェック
-		if(mb_strlen($_POST['mysql_db_name(result, row)']) < 3){
-			$errors[] = '名前は3文字以上で入力して下さい';
-		}
+			if(mb_strlen($_POST['my_name']) < 3){
+				$errors[] = '名前は3文字以上で入力して下さい';
+			}
 		//メールアドレスが入力されているかチェック
-		if(strlen($_POST['email']) == 0){
-			$errors[] = 'メールアドレスを入力してください';
-		}elseif(!preg_match('/^[^@\s]+@([-a-z0-9]+\.)+[a-z]{2,}$/i',$_POST['email'])){
-			$errors[] = '正しいメールアドレスを入力してください';
-		}
+			if(strlen($_POST['email']) == 0){
+				$errors[] = 'メールアドレスを入力してください';
+			}elseif(!preg_match('/^[^@\s]+@([-a-z0-9]+\.)+[a-z]{2,}$/i',$_POST['email'])){
+				$errors[] = '正しいメールアドレスを入力してください';
+			}
 		//整数チェック
-		if($_POST['age'] != strval(intval($_POST['age']))){
-			$errors[] = '年齢は数値で入力してください';
-		}elseif($_POST['age']<18 || $_POST['age'] > 65){
-			$errors[] = '年齢は18歳以上65歳以下で入力してください';
-		}
+			if($_POST['age'] != strval(intval($_POST['age']))){
+				$errors[] = '年齢は数値で入力してください';
+			}elseif($_POST['age']<18 || $_POST['age'] > 65){
+				$errors[] = '年齢は18歳以上65歳以下で入力してください';
+			}
 		//orderでの選択のチェック
-		if(!array_key_exists($_POST['order'],$GLOBALS['sweets'])){
-			$errors[] = 'メニューから選択してください';
-		}
+			if(!array_key_exists($_POST['order'],$GLOBALS['sweets'])){
+				$errors[] = 'メニューから選択してください';
+			}
 		//エラーメッセージの配列(エラーがなければ空)を返す
-		return $errors;
+			return $errors;
 
-	}
+		}
 	// function h($str){
 	// 	return htmlentities($str, ENT_QUOTES, 'UTF-8');
 	// }
-	?>
-	<!DOCTYPE html>
-	<html lang="ja">
-	<head>
-		<meta charset="UTF-8">
-		<title>フォームのひな形</title>
-	</head>
-	<body>
+		?>
+		<!DOCTYPE html>
+		<html lang="ja">
+		<head>
+			<meta charset="UTF-8">
+			<title>フォームのひな形</title>
+		</head>
+		<body>
 
-		<?php
+			<?php
 		//メインページのロジック:
 		//-フォームがサブミットされた場合は検証してしょり、
 		//-サブミットされなかった場合はフォームを表示
-		if(array_key_exists('_submit_check',$_POST)){
+			if(array_key_exists('_submit_check',$_POST)){
 			//サブミットされたデータが正しければ、それを処理
-			if($form_errors = validate_form()){
+				if($form_errors = validate_form()){
 				show_form($form_errors); //フォームを再表示
 			}else{
 				process_form(); //処理を実行
