@@ -25,7 +25,8 @@ $q = $db->query($sql);
 */
 
 $sql = 'UPDATE dishes SET price = price + 5';
-$q = $db->query($sql);
+//$q = $db->query($sql);
+$count = $db->exec($sql);
 
-
-print $q->affectedRows() . '件のデータを更新しました<br/>';
+//print $q->affectedRows() . '件のデータを更新しました<br/>';
+print $count . '件のデータを更新しました<br/>';
