@@ -35,13 +35,13 @@ function input_select($element_name, $selected, $options, $multiple = false) {
 	//複数選択が許されていれば、複数アトリビュートを加え、
 	//[]をタグ名の最後に追加
 	if($multiple) {
-		print '[]"multiple="multiple';
-		print '">';
+		print '[]" multiple="multiple';
 	}
+	print '">';
 	//選択されるもののリストを設定
 	$selected_options = array();
 	if($multiple){
-		foreach ($selected['$element_name'] as $value) {
+		foreach ($selected[$element_name] as $value) {
 			$selected_options['$val'] = true;
 		}
 	} else {
