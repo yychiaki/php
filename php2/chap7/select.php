@@ -17,11 +17,23 @@ $db->setErrorHandling(PEAR_ERROR_DIE);
 $db->setFetchMode(MDB2_FETCHMODE_OBJECT);
 
 
-$_POST['dish_serch'] = '焼肉定食';
-$sql = 'SELECT dish_name,price FROM dishes WHERE dish_name LIKE ?';
-$sth = $db->prepare($sql);
-$result = $sth->execute(array($_POST['dish_serch']));
-$matches = $result->fetchAll();
+$_POST['dish_serch'] = '焼肉%';
+// $sql = 'SELECT dish_name,price FROM dishes WHERE dish_name LIKE ?';
+// $sth = $db->prepare($sql);
+// $result = $sth->execute(array($_POST['dish_serch']));
+// $matches = $result->fetchAll();
+
+
+//最初は、値を標準クォーティングする
+$dish = $db ->quote($_POST['dish_serch']);
+
+// そして、アンダースコアと%記号の前に\nを置く
+// $dish = strtr($dish, array('_' => '\_', '%' => '\%'));
+
+// すると、$dishは浄化されて、正しいクエリを補完することができる
+// $dish = '%' . $dish .'%'; //要修正
+$sql = 'SELECT dish_name, price FROM dishes WHERE dish_name like' . $dish;
+$matches = $db->queryAll($sql);
 foreach($matches as $row){
 	print "$row->dish_name, $row->price<br/>\n";
 }
