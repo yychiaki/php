@@ -99,8 +99,27 @@ print '</form>';
 }
 
 function validate_form(){
-	$errors = array();
+	global $hours, $minutes, $months, $days, $years;
 
+	$errors = array();
+	if(!array_key_exists($_POST['month'],$months)){
+		$errors[] = 'Select a valid month.';
+	}
+	if(!array_key_exists($_POST['day'],$days)){
+		$errors[] = 'Select a valid day.';
+	}
+	if(!array_key_exists($_POST['year'],$years)){
+		$errors[] = 'Select a valid year.';
+	}
+	if(!array_key_exists($_POST['hour'],$hours)){
+		$errors[] = 'Select a valid hour.';
+	}
+	if(!array_key_exists($_POST['minute'],$minutes)){
+		$errors[] = 'Select a valid minute.';
+	}
+	if(($_POST['ampm'] != 'am') && ($_POST['ampm'] != 'pm')){
+		$errors[] = 'Select valid am/pm choice.';
+	}
 	return $errors;
 }
 function process_form(){
